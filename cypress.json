@@ -1,8 +1,6 @@
 {
   "baseUrl": "http://localhost:3000",
   "defaultCommandTimeout": 1500,
-  "pluginsFile": false,
-  "supportFile": false,
   "viewportHeight": 1024,
   "viewportWidth": 1280
 }

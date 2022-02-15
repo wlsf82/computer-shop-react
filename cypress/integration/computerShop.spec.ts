@@ -3,7 +3,12 @@ describe('Live TAT - Computer Shop', () => {
 
   it('tries to click on multiple elements', () => {
     cy.get('[data-testid="add-item-button"]')
-      .click()
+      // .click()
+      .click({ multiple: true })
+      // .last()
+      // .first()
+      // .eq(1)
+      // .click()
       // cy.click() can only be called on a single element.
       // Your subject contained 3 elements.
       // Pass { multiple: true } if you want to serially click each element.
@@ -16,29 +21,37 @@ describe('Live TAT - Computer Shop', () => {
 
   it('incorrectly uses cy.contains', () => {
     // cy.contains(ADICIONAR AO CARRINHO).click() // Compilation error
+    cy.contains('ADICIONAR AO CARRINHO').click() // Compilation error
   })
 
   it('incorrectly uses cy.get as if it was cy.contains', () => {
-    cy.get('[data-testid="add-item-button"]', 'ADICIONAR AO CARRINHO')
-      .click()
+    // cy.get('[data-testid="add-item-button"]', 'ADICIONAR AO CARRINHO')
+    cy.contains('[data-testid="add-item-button"]', 'ADICIONAR AO CARRINHO')
+    // cy.get('[data-testid="add-item-button"]')
+    // cy.get('[data-testid="add-item-button"]')
+    //   .first()
+    //   .click()
       // cy.get() only accepts an options object for its second argument.
       // You passed ADICIONAR AO CARRINHO
   })
 
   it('fails an expectation on purpose', () => {
     cy.get('ul li').should('have.length', 3)
-    cy.contains('Acer').should('not.exist')
+    // cy.contains('Acer').should('not.exist')
+    cy.contains('Acer').should('exist')
     // Expected not to find content: 'Acer' but continuously found it.
   })
 
   it('fails another expectation on purpose', () => {
     cy.get('ul li').should('have.length', 3)
-    cy.contains('Acer').should('not.be.visible')
+    // cy.contains('Acer').should('not.be.visible')
+    cy.contains('Acer').should('be.visible')
     // expected '<p>' not to be 'visible'
   })
 
   it('fails one more expectation on purpose', () => {
-    cy.get('ul li').should('have.length', 2)
+    // cy.get('ul li').should('have.length', 4)
+    cy.get('ul li').should('have.length', 3)
     // Too many elements found. Found '3', expected '2'.
   })
 
@@ -55,7 +68,8 @@ describe('Live TAT - Computer Shop', () => {
   })
 
   it('can\'t find element due to a typo', () => {
-    cy.get('[data-test-id="add-item-button"]')
+    cy.get('[data-testid="add-item-button"]')
+    // cy.get('[data-test-id="add-item-button"]')
     // Expected to find element: [data-test-id="add-item-button"],
     // but never found it.
       .first()
@@ -66,6 +80,7 @@ describe('Live TAT - Computer Shop', () => {
     //https://github.com/cypress-io/cypress/issues/20208
     it('tries to import an unnexisting fixture', () => {
       cy.fixture('test')
+      // cy.fixture('example')
       /**
        * v9.4.1
        * A fixture file could not be found at any of the following paths:
@@ -94,10 +109,11 @@ describe('Live TAT - Computer Shop', () => {
       */
     })
 
-    it('incorrectly uses aliased element (missing @ sign)', () => {
+    it.only('incorrectly uses aliased element (missing @ sign)', () => {
       cy.get('[data-testid="cart-size"]')
         .as('cartSize')
-      cy.get('cartSize').should('contain', '0')
+      // cy.get('cartSize').should('contain', '0')
+      cy.get('@cartSize').should('contain', '0')
       // v9.4.1
       // Expected to find element: cartSize, but never found it.
       // v9.5.0
@@ -107,18 +123,24 @@ describe('Live TAT - Computer Shop', () => {
 
   context('TS errors', function() {
     it('incorrectly defines a const without giving it a value', () => {
-      const name: string // 'const' declarations must be initialized.
+      // const name: string // 'const' declarations must be initialized.
+      const name = 'Walmyr'
     })
 
     it('tries to overwrite a const variable', () => {
-      const name = 'Walmyr'
+      // const name = 'Walmyr'
+      let name = 'Walmyr'
 
       name = 'Pedro' // Cannot assign to 'name' because it is a constant.
     })
 
-    it('tries to access this of an arrow function', () => {
+    it.skip('tries to access this of an arrow function', () => {
       cy.log(this.test.title)
       // Cannot read properties of undefined (reading 'title')
+    })
+
+    it('is able to access this of a function', function() {
+      cy.log(this.test.title)
     })
   })
 
@@ -135,9 +157,9 @@ describe('Live TAT - Computer Shop', () => {
       ]
     }
     cy.log(this.myObject)
-    console.log(this.myObject)
+    console.log('Esse é o meu console.log: ', this.myObject)
 
-    // const myObj = JSON.stringify(this.myObject)
-    // cy.log(myObj)
+    const myObj = JSON.stringify(this.myObject)
+    cy.log(myObj)
   })
 })
