@@ -1,10 +1,12 @@
-describe('Computer Shop', () => {
+describe('Live TAT - Computer Shop', () => {
   beforeEach(() => cy.visit('/computer-shop-react'))
 
   it('tries to click on multiple elements', () => {
     cy.get('[data-testid="add-item-button"]')
-      .click() // Does not work.
-      // When the selector is not specific, cy.get returns multiple elements
+      .click()
+      // cy.click() can only be called on a single element.
+      // Your subject contained 3 elements.
+      // Pass { multiple: true } if you want to serially click each element.
   })
 
   it('clicks on the first button using cy.contains', () => {
@@ -20,18 +22,19 @@ describe('Computer Shop', () => {
     cy.get('[data-testid="add-item-button"]', 'ADICIONAR AO CARRINHO')
       .click()
       // cy.get() only accepts an options object for its second argument.
+      // You passed ADICIONAR AO CARRINHO
   })
 
   it('fails an expectation on purpose', () => {
     cy.get('ul li').should('have.length', 3)
     cy.contains('Acer').should('not.exist')
-    // expected <p> not to exist in the DOM
+    // Expected not to find content: 'Acer' but continuously found it.
   })
 
   it('fails another expectation on purpose', () => {
     cy.get('ul li').should('have.length', 3)
     cy.contains('Acer').should('not.be.visible')
-    // expected <p> not to be visible
+    // expected '<p>' not to be 'visible'
   })
 
   it('fails one more expectation on purpose', () => {
@@ -45,6 +48,8 @@ describe('Computer Shop', () => {
 
   it('tries to use a task when pluginsFile is set to false', () => {
     cy.task('sayHello').then((greeting: string) => cy.log(greeting))
+    // cy.task('sayHello') failed with the following error:
+
     // The 'task' event has not been registered in the plugins file.
     // You must register it before using cy.task()
   })
@@ -57,28 +62,47 @@ describe('Computer Shop', () => {
       .click()
   })
 
-  it('tries to import an unnexisting fixture', () => {
-    cy.fixture('test')
-    /**
-    A fixture file could not be found at any of the following paths:
+  context('Regressions', () => {
+    //https://github.com/cypress-io/cypress/issues/20208
+    it('tries to import an unnexisting fixture', () => {
+      cy.fixture('test')
+      /**
+       * v9.4.1
+       * A fixture file could not be found at any of the following paths:
+       *
+       * > cypress/fixtures/test
+       * > cypress/fixtures/test{{extension}}
+       *
+       * Cypress looked for these file extensions at the provided path:
+       *
+       * > .json, .js, .coffee, .html, .txt, .csv, .png, .jpg, .jpeg, .gif, .tif, .tiff, .zip
+       *
+       * Provide a path to an existing fixture file.
+      */
+     /**
+       * v9.5.0
+       * A fixture file could not be found at any of the following paths:
+       *
+       * [90m > [39m [94mcypress/fixtures/test [39m
+       * [90m > [39m [94mcypress/fixtures/test [39m.[ext]
+       *
+       * Cypress looked for these file extensions at the provided path:
+       *
+       * [90m > [39m [94.json, .js, .coffee, .html, .txt, .csv, .png, .jpg, .jpeg, .gif, .tif, .tiff, .zip[39m
+       *
+       * Provide a path to an existing fixture file.
+      */
+    })
 
-    > cypress/fixtures/test
-    > cypress/fixtures/test{{extension}}
-
-    Cypress looked for these file extensions at the provided path:
-
-    > .json, .js, .coffee, .html, .txt, .csv, .png, .jpg, .jpeg, .gif, .tif, .tiff, .zip
-
-    Provide a path to an existing fixture file.
-    */
-  })
-
-  it('incorrectly uses aliased element', () => {
-    cy.get('[data-testid="cart-size"]')
-      .as('cartSize')
-    cy.get('cartSize').should('contain', '0')
-    // Expected to find element: cartSize, but never found it.
-    // Missing @ sign
+    it('incorrectly uses aliased element (missing @ sign)', () => {
+      cy.get('[data-testid="cart-size"]')
+        .as('cartSize')
+      cy.get('cartSize').should('contain', '0')
+      // v9.4.1
+      // Expected to find element: cartSize, but never found it.
+      // v9.5.0
+      // Expected to find element: [data-test-id="add-item-button"], but never found it.
+    })
   })
 
   context('TS errors', function() {
@@ -93,18 +117,27 @@ describe('Computer Shop', () => {
     })
 
     it('tries to access this of an arrow function', () => {
-      cy.log(this.test.title) // Cannot read properties of undefined (reading 'title')
+      cy.log(this.test.title)
+      // Cannot read properties of undefined (reading 'title')
     })
+  })
 
-    it('cy.log vs. console.log', function() {
-      this.myObject = {
-        name: 'Walmyr',
-        nationality: 'Brazilian',
-        isMarried: true,
-        hasChildren: false,
-      }
-      cy.log(this.myObject)
-      console.log(this.myObject)
-    })
+  it('cy.log vs. console.log', function() {
+    this.myObject = {
+      name: 'Walmyr',
+      nationality: 'Brazilian',
+      isMarried: true,
+      hasChildren: false,
+      hobbies: [
+        'Skateboarding',
+        'Cycling',
+        'Reading'
+      ]
+    }
+    cy.log(this.myObject)
+    console.log(this.myObject)
+
+    // const myObj = JSON.stringify(this.myObject)
+    // cy.log(myObj)
   })
 })
